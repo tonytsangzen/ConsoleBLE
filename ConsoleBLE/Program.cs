@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 // This example code shows how you could implement the required main function for a 
 // Console UWP Application. You can replace all the code inside Main with your own custom code.
@@ -13,19 +14,16 @@ namespace ConsoleBLE
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            DeviceManager devMan = new DeviceManager();
+            devMan.StartScan();
+
+            while (true)
             {
-                Console.WriteLine("Hello - no args");
+                Console.Clear();
+                Console.WriteLine(DateTime.Now.ToString());
+                Console.WriteLine(devMan.GetList());
+                Thread.Sleep(1000);
             }
-            else
-            {
-                for (int i = 0; i < args.Length; i++)
-                {
-                    Console.WriteLine($"arg[{i}] = {args[i]}");
-                }
-            }
-            Console.WriteLine("Press a key to continue: ");
-            Console.ReadLine();
         }
     }
 }
