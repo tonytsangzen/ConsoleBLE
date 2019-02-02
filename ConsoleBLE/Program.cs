@@ -15,10 +15,11 @@ namespace ConsoleBLE
         static void Main(string[] args)
         {
             DeviceManager devMan = new DeviceManager();
-            devMan.StartScan();
+
 
             while (true)
             {
+                devMan.StartScan();
                 Console.Clear();
                 Console.WriteLine(DateTime.Now.ToString());
                 Console.WriteLine(devMan.GetList());
