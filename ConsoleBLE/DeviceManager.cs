@@ -13,19 +13,31 @@ namespace ConsoleBLE
         private DeviceWatcher deviceWatcher;
         private List<BleDevices> deviceList;
         private bool Scaning;
+        private BleDevices ConnectDevice;
 
         private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
         {
 
-            if ((bool)deviceInfo.Properties["System.Devices.Aep.Bluetooth.Le.IsConnectable"])
+            bool volid = ((bool)deviceInfo.Properties["System.Devices.Aep.Bluetooth.Le.IsConnectable"]) && (deviceInfo.Name.Length > 0) ? true:false ;
+
+            if (!volid)
+                return ;
+
+            foreach (var item in deviceList)
             {
-                deviceList.Add(new BleDevices(deviceInfo));
+                if (item.Id == deviceInfo.Id)
+                {
+                    return;
+                }
             }
+
+            deviceList.Add(new BleDevices(deviceInfo));
+            BleConsole.LogWrite("[Server]found device:" + deviceInfo.Name);
         }
 
         private void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
         {
-
+            //BleConsole.LogWrite("[Server]Update device:" + deviceInfoUpdate.Id);
         }
 
         private void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
@@ -34,6 +46,7 @@ namespace ConsoleBLE
             {
                 if (item.Id == deviceInfoUpdate.Id)
                 {
+                    BleConsole.LogWrite("[Server]:remove device" + item.Name);
                     deviceList.Remove(item);
                     return;
                 }
@@ -43,11 +56,13 @@ namespace ConsoleBLE
         private void DeviceWatcher_EnumerationCompleted(DeviceWatcher sender, object e)
         {
             Scaning = false;
+            deviceWatcher.Stop();
+            //BleConsole.LogWrite("[Server]:Enumeration Completed!");
         }
 
         private void DeviceWatcher_Stopped(DeviceWatcher sender, object e)
         {
-
+            deviceWatcher.Start();
         }
 
         public void StartScan()
@@ -104,12 +119,50 @@ namespace ConsoleBLE
         public string GetList()
         {
             StringBuilder ret = new StringBuilder();
-
-            foreach (BleDevices d in deviceList)
+          
+            foreach (var d in deviceList)
             {
-                ret.Append(d.Name + ":" + d.Rssi + "\n");
+                ret.Append(d.Id + ":" + d.Name + ":" + d.Rssi + "\n");
             }
             return ret.ToString();
+        }
+
+        public bool Connect(string name)
+        {
+            foreach (var d in deviceList)
+            {
+                if (d.Name == name)
+                {
+                    d.Connect();
+                    ConnectDevice = d;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void DisConnect()
+        {
+            if (ConnectDevice != null) { 
+                ConnectDevice.Disconnect();
+                ConnectDevice = null;
+            }
+        }
+
+        public void Write(string value)
+        {
+            if (ConnectDevice != null)
+            {
+                ConnectDevice.Write(value);
+            }
+        }
+
+        public void Notify()
+        {
+            if (ConnectDevice != null)
+            {
+                 ConnectDevice.Notify();
+            }
         }
     }
 }

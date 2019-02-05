@@ -103,6 +103,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BleCommand.cs" />
+    <Compile Include="BleConsole.cs" />
     <Compile Include="BleDevices.cs" />
     <Compile Include="DeviceManager.cs" />
     <Compile Include="Program.cs" />

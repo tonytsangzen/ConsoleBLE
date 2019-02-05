@@ -14,17 +14,10 @@ namespace ConsoleBLE
     {
         static void Main(string[] args)
         {
-            DeviceManager devMan = new DeviceManager();
+            BleConsole con = new BleConsole();
 
-
-            while (true)
-            {
-                devMan.StartScan();
-                Console.Clear();
-                Console.WriteLine(DateTime.Now.ToString());
-                Console.WriteLine(devMan.GetList());
-                Thread.Sleep(1000);
-            }
+            con.Loop(args);
+        
         }
     }
 }
