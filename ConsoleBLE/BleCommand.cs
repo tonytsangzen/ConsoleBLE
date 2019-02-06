@@ -9,6 +9,7 @@ namespace ConsoleBLE
     class BleCommand
     {
         DeviceManager devMan;
+        AdvertisementManager AdvMan;
 
         public int start(string[] args)
         {
@@ -102,6 +103,36 @@ namespace ConsoleBLE
             }
 
             devMan.Notify();
+            return 0;
+        }
+
+        public int listen(string[] args)
+        {
+            AdvMan = new AdvertisementManager();
+            BleConsole.LogWrite("Listener started Success!");
+            return 0;
+        }
+
+        public int filter(string[] args)
+        {
+            foreach(var s in args)
+            {
+                BleConsole.LogWrite("param:" + s);
+            }
+
+            if (args.Count() < 2)
+            {
+                BleConsole.LogWrite("Error: paramater");
+                return -1;
+            }
+
+            if (AdvMan == null)
+            {
+                BleConsole.LogWrite("Error: Listener is stoped");
+                return -1;
+            }
+
+            AdvMan.FilterByName(args[1]);
             return 0;
         }
 
