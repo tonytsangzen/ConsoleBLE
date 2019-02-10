@@ -12,6 +12,14 @@ namespace ConsoleBLE
     {
         private BluetoothLEAdvertisementWatcher watcher;
 
+        // reverse byte order (32-bit)
+        public static UInt32 ReverseBytes(UInt32 value)
+        {
+            return (value & 0x000000FFU) << 24 | (value & 0x0000FF00U) << 8 |
+                   (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
+        }
+
+
         public AdvertisementManager()
         {
             watcher = new BluetoothLEAdvertisementWatcher();
@@ -24,7 +32,8 @@ namespace ConsoleBLE
             foreach (var data in eventArgs.Advertisement.ManufacturerData)
             {
                 DataReader reader = DataReader.FromBuffer(data.Data);
-                BleConsole.LogWrite("[Listen]" + eventArgs.Advertisement.LocalName + ":" + reader.ReadInt32().ToString());
+                UInt32 count = ReverseBytes(reader.ReadUInt32());
+                BleConsole.LogWrite("[Listen]" + eventArgs.Advertisement.LocalName + ":" + count.ToString());
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Reflection;
+using System.Collections.Generic;
 
 // This example code shows how you could implement the required main function for a 
 // Console UWP Application. You can replace all the code inside Main with your own custom code.
@@ -14,8 +15,10 @@ namespace ConsoleBLE
     class BleConsole
     {
         private BleCommand com = new BleCommand();
-        static private string InputBuf = "";
+        private CommandHistory history = new CommandHistory();
 
+        static private string InputBuf =  "";
+        
         static public void LogWrite(string log)
         {
             //Console.CursorTop = System.Console.CursorTop - 1;
@@ -25,19 +28,34 @@ namespace ConsoleBLE
             Console.Write("Console\\>" + InputBuf);
         }
 
-        public void RunCommand(string[] args)
+        static public void Refresh()
+        {
+            //Console.CursorTop = System.Console.CursorTop - 1;
+            Console.Write("\r" + new string(' ', Console.BufferWidth));
+            Console.CursorTop = Console.CursorTop - 1;
+            Console.Write("Console\\>" + InputBuf);
+        }
+
+        public bool RunCommand(string[] args)
         {
             string cmd = args[0].ToLower();
 
             MethodInfo method = typeof(BleCommand).GetMethod(cmd);
 
-            if( method != null)
+            if (method != null)
             {
-                method.Invoke(com, new object[1]{ args});
+                method.Invoke(com, new object[1] { args });
+                return true;
+            }
+            else if (cmd == "history")
+            {
+                LogWrite(history.List());
+                return true;
             }
             else
             {
-                LogWrite("Error Command!");
+                LogWrite("Error Command:" + cmd);
+                return false;
             }
         }
 
@@ -46,14 +64,38 @@ namespace ConsoleBLE
             Console.Write("console\\>");
             while (true)
             {
-                InputBuf += Console.ReadKey().KeyChar;
-                if(InputBuf.EndsWith('\r'))
+                var KeyPress = Console.ReadKey();
+                switch(KeyPress.Key)
                 {
-                    string cmd = InputBuf;
-                    InputBuf = "";
-                    Console.Write("\nconsole\\>");
-                    RunCommand(cmd.Split());
+                    case ConsoleKey.Enter:
+                        Console.Write("\nConsole\\>");
+                        if (InputBuf.Length > 0)
+                        {
+                            string cmd = InputBuf;
+                            InputBuf = "";
+                            if (RunCommand(cmd.Split()))
+                            {
+                                history.Push(cmd);
+                            }
+                        }
+                        break;
+                    case ConsoleKey.Backspace:
+                        if (InputBuf.Length > 0)
+                        {
+                            InputBuf = InputBuf.Remove((InputBuf.Length - 1));
+                        }
+                        break;
+                    case ConsoleKey.DownArrow:
+                        InputBuf = history.SearchDown();
+                        break;
+                    case ConsoleKey.UpArrow:
+                        InputBuf = history.SearchUp();
+                        break;
+                    default:
+                        InputBuf += KeyPress.KeyChar;
+                        break;
                 }
+                Refresh();
             }
         }
     }

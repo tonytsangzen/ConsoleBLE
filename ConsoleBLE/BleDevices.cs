@@ -104,7 +104,8 @@ namespace ConsoleBLE
             // An Indicate or Notify reported that the value has changed.
             var reader = DataReader.FromBuffer(args.CharacteristicValue);
             // Parse the data however required.
-            Console.WriteLine(reader.ReadInt16().ToString() + ":" + reader.ReadInt16().ToString() + ":" + reader.ReadInt16().ToString());
+            //Console.WriteLine(reader.ReadInt16().ToString() + ":" + reader.ReadInt16().ToString() + ":" + reader.ReadInt16().ToString());
+            Console.Write(reader.ReadString(reader.UnconsumedBufferLength));
         }
 
         public async void Notify()

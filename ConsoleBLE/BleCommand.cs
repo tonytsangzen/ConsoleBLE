@@ -17,8 +17,10 @@ namespace ConsoleBLE
             {
                 devMan = new DeviceManager();
                 devMan.StartScan();
-                BleConsole.LogWrite("Service started Success!");
+                BleConsole.LogWrite("Server started Success.");
             }
+            else
+                BleConsole.LogWrite("Server is running, stop first.");
             return 0;
         }
 
@@ -26,7 +28,7 @@ namespace ConsoleBLE
         {
             if (devMan == null)
             {
-                BleConsole.LogWrite("Error: service is stoped");
+                BleConsole.LogWrite("Error: service is stoped, start first.");
                 return -1;
             }
             devMan.StopScan();
@@ -38,7 +40,7 @@ namespace ConsoleBLE
         {
             if (devMan == null)
             {
-                BleConsole.LogWrite("Error: service is stoped");
+                BleConsole.LogWrite("Error: service is stoped, start first.");
                 return -1;
             }
             BleConsole.LogWrite(devMan.GetList());
@@ -55,11 +57,14 @@ namespace ConsoleBLE
 
             if (devMan == null)
             {
-                BleConsole.LogWrite("Error: service is stoped");
+                BleConsole.LogWrite("Error: service is stoped, start first.");
                 return -1;
             }
 
-            devMan.Connect(args[1]);
+            if(devMan.Connect(args[1]))
+                BleConsole.LogWrite("Success to connect devices:" + args[1]);
+            else
+                BleConsole.LogWrite("Failed to connect devices:" + args[1]);
 
             return 0;
         }
@@ -68,7 +73,7 @@ namespace ConsoleBLE
         {
             if (devMan == null && args.Count() < 2)
             {
-                BleConsole.LogWrite("Error: service is stoped");
+                BleConsole.LogWrite("Error: service is stoped, start first.");
                 return -1;
             }
 
@@ -101,7 +106,7 @@ namespace ConsoleBLE
                 BleConsole.LogWrite("Error: service is stoped");
                 return -1;
             }
-
+            BleConsole.LogWrite("Notify Device.");
             devMan.Notify();
             return 0;
         }
@@ -131,7 +136,7 @@ namespace ConsoleBLE
                 BleConsole.LogWrite("Error: Listener is stoped");
                 return -1;
             }
-
+            BleConsole.LogWrite("Set Advertisement filter:" + args[1]);
             AdvMan.FilterByName(args[1]);
             return 0;
         }
